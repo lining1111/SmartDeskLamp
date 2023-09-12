@@ -22,6 +22,7 @@ find_package(xpack REQUIRED)
 set(3rdLibs gflags::gflags SQLite::SQLite3 CURL::libcurl openssl::openssl
         libuuid::libuuid glog::glog fmt::fmt Poco::Poco xpack::xpack)
 
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 include(utility)
 include(CPM)
@@ -33,9 +34,20 @@ SUBDIRLISTINCLUDE(SRC_DIRS ${CMAKE_SOURCE_DIR} 2 ${filtration_dirlist})
 message(STATUS "3.7 SRC_DIRS : ${SRC_DIRS}")
 include_directories(.)
 
-include_directories(lib/${ARCH}/include)
-include_directories(lib/${ARCH}/include/opencv4)
-link_directories(lib/${ARCH})
+
+#opencv
+set(OpenCV_DIR "lib/${ARCH}/lib/cmake/opencv4")
+find_package(OpenCV REQUIRED)
+if (OpenCV_FOUND OR OpenCV_CXX_FOUND)
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    message(STATUS "OpenCV library status:")
+    message(STATUS "    version: ${OpenCV_VERSION}")
+    message(STATUS "    libraries: ${OpenCV_LIBS}")
+    message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
+else ()
+    message(FATAL_ERROR "OpenCV not found!")
+    return()
+endif ()
 
 foreach (src_dir ${SRC_DIRS})
     aux_source_directory(${src_dir} SRC_FILES)
@@ -44,5 +56,5 @@ list(REMOVE_ITEM SRC_FILES ./main.cpp)
 
 add_executable(SmartDeskLamp main.cpp ${SRC_FILES})
 
-target_link_libraries(SmartDeskLamp ${LIBS})
+target_link_libraries(SmartDeskLamp ${LIBS} ${OpenCV_LIBS})
 redefine_file_macro(SmartDeskLamp)
