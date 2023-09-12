@@ -10,6 +10,7 @@
 #include "config/config.h"
 #include <string>
 #include <csignal>
+#include "camera/Camera.h"
 
 using namespace std;
 
@@ -30,6 +31,7 @@ int signalIgnPipe() {
 DEFINE_int32(keep, 5, "日志清理周期 单位day，默认5");
 DEFINE_bool(isSendSTDOUT, false, "输出到控制台，默认false");
 DEFINE_string(logDir, "log", "日志的输出目录,默认log");
+
 int main(int argc, char **argv) {
     signalIgnPipe();
 
@@ -43,7 +45,16 @@ int main(int argc, char **argv) {
     LOG(WARNING) << "程序工作目录:" << string(get_current_dir_name()) << ",版本号:" << VERSION_BUILD_TIME;
 
 
-    std::cout << "Hello, World!" << CV_VERSION <<std::endl;
+    std::cout << "Hello, World!" << CV_VERSION << std::endl;
+
+    Camera *camera = new Camera(0);
+
+    if (camera->Open() == 0) {
+        LOG(WARNING) << "camera open success";
+    }
+    camera->Close();
+    delete camera;
+    LOG(WARNING) << "camera close success";
 
     return 0;
 }
