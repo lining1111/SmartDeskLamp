@@ -29,14 +29,29 @@ include(CPM)
 
 set(LIBS m pthread ${3rdLibs})
 
-set(filtration_dirlist cmake-build-debug cmake-build-release-aarch64 .idea .git conan lib test cmake)
+set(filtration_dirlist cmake-build-debug cmake-build-release-aarch64 .idea .git conan lib test cmake PaddleModels)
 SUBDIRLISTINCLUDE(SRC_DIRS ${CMAKE_SOURCE_DIR} 2 ${filtration_dirlist})
 message(STATUS "3.7 SRC_DIRS : ${SRC_DIRS}")
 include_directories(.)
 
 
+set(TARGET_OS "linux")
+set(TARGET_ABI ${ARCH})
+set(PADDLE_LITE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/PaddleLite")
+set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/OpenCV")
+
+add_definitions(-D${TARGET_ABI})
+
+message(STATUS "TARGET OS: ${TARGET_OS}")
+message(STATUS "TARGET ABI: ${TARGET_ABI}")
+message(STATUS "PADDLE LITE DIR: ${PADDLE_LITE_DIR}")
+message(STATUS "OpenCV DIR: ${OpenCV_DIR}")
+
+include_directories(${PADDLE_LITE_DIR}/${TARGET_OS}/${TARGET_ABI}/include)
+link_directories(${PADDLE_LITE_DIR}/${TARGET_OS}/${TARGET_ABI}/lib)
+
 #opencv
-set(OpenCV_DIR "lib/${ARCH}/lib/cmake/opencv4")
+set(OpenCV_DIR "${OpenCV_DIR}/${TARGET_OS}/${TARGET_ABI}/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 if (OpenCV_FOUND OR OpenCV_CXX_FOUND)
     include_directories(${OpenCV_INCLUDE_DIRS})
@@ -49,6 +64,23 @@ else ()
     return()
 endif ()
 
+add_library(
+        # Sets the name of the library.
+        paddle_api_shared
+        # Sets the library as a shared library.
+        SHARED
+        # Provides a relative path to your source file(s).
+        IMPORTED)
+set_target_properties(
+        # Specifies the target library.
+        paddle_api_shared
+        # Specifies the parameter you want to define.
+        PROPERTIES
+        IMPORTED_LOCATION
+        ${PADDLE_LITE_DIR}/${TARGET_OS}/${TARGET_ABI}/lib/libpaddle_light_api_shared.so
+        # Provides the path to the library you want to import.
+)
+
 foreach (src_dir ${SRC_DIRS})
     aux_source_directory(${src_dir} SRC_FILES)
 endforeach (src_dir)
@@ -58,3 +90,6 @@ add_executable(SmartDeskLamp main.cpp ${SRC_FILES})
 
 target_link_libraries(SmartDeskLamp ${LIBS} ${OpenCV_LIBS})
 redefine_file_macro(SmartDeskLamp)
+
+
+add_subdirectory(test)

@@ -52,6 +52,12 @@ int main(int argc, char **argv) {
     if (camera->Open() == 0) {
         LOG(WARNING) << "camera open success";
     }
+
+    Mat img;
+    camera->GetOnePicture(img);
+    cv::imwrite("./test.jpg", img);
+
+
     camera->Close();
     delete camera;
     LOG(WARNING) << "camera close success";
