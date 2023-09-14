@@ -29,5 +29,5 @@
 ### 20230914
 
    paddlelite库的使用，主要参考 https://github.com/PaddlePaddle/Paddle-Lite-Demo.git
+   库采用2.12 test内程序在x86的使用参考test目录下的README.md 这个是拷贝的上面链接的
    
-   库采用2.12

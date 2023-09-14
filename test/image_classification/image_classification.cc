@@ -272,8 +272,8 @@ void run_model(const std::string model_file,
         cv::Mat output_image =
                 process(model_file, input_image, word_labels, topk, predictor);
         cv::imwrite(output_image_path, output_image);
-        cv::imshow("image classification", output_image);
-        cv::waitKey(0);
+//        cv::imshow("image classification", output_image);
+//        cv::waitKey(0);
     }
 }
 
