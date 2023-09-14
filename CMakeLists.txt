@@ -18,9 +18,10 @@ find_package(glog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(Poco REQUIRED)
 find_package(xpack REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 set(3rdLibs gflags::gflags SQLite::SQLite3 CURL::libcurl openssl::openssl
-        libuuid::libuuid glog::glog fmt::fmt Poco::Poco xpack::xpack)
+        libuuid::libuuid glog::glog fmt::fmt Poco::Poco xpack::xpack yaml-cpp)
 
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
@@ -77,7 +78,7 @@ set_target_properties(
         # Specifies the parameter you want to define.
         PROPERTIES
         IMPORTED_LOCATION
-        ${PADDLE_LITE_DIR}/${TARGET_OS}/${TARGET_ABI}/lib/libpaddle_light_api_shared.so
+        ${PADDLE_LITE_DIR}/${TARGET_OS}/${TARGET_ABI}/lib/libpaddle_full_api_shared.so
         # Provides the path to the library you want to import.
 )
 
@@ -88,8 +89,8 @@ list(REMOVE_ITEM SRC_FILES ./main.cpp)
 
 add_executable(SmartDeskLamp main.cpp ${SRC_FILES})
 
-target_link_libraries(SmartDeskLamp ${LIBS} ${OpenCV_LIBS})
+set(LIBS ${LIBS} paddle_api_shared ${OpenCV_LIBS})
+target_link_libraries(SmartDeskLamp ${LIBS})
 redefine_file_macro(SmartDeskLamp)
-
 
 add_subdirectory(test)

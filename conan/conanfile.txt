@@ -9,6 +9,7 @@ protobuf/3.20.0
 fmt/10.1.1
 poco/1.12.4
 xpack/1.0.4
+yaml-cpp/0.8.0
 [options]
 poco*:enable_data_mysql=False
 [generators]

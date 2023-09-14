@@ -11,6 +11,7 @@
 #include <string>
 #include <csignal>
 #include "camera/Camera.h"
+#include "paddle_api.h"
 
 using namespace std;
 
@@ -46,6 +47,7 @@ int main(int argc, char **argv) {
 
 
     std::cout << "Hello, World!" << CV_VERSION << std::endl;
+
 
     Camera *camera = new Camera(0);
 

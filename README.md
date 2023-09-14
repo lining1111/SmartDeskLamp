@@ -26,4 +26,8 @@
 
     目前只有det模型是双平台的
 
-    
+### 20230914
+
+   paddlelite库的使用，主要参考 https://github.com/PaddlePaddle/Paddle-Lite-Demo.git
+   
+   库采用2.12
