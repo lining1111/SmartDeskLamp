@@ -1,159 +1,103 @@
-# 图像分类 Demo 使用指南
-在 Android 上实现实时的图像分类功能，此 Demo 有很好的的易用性和开放性，如在 Demo 中跑自己训练好的模型等。
-本文主要介绍图像分类 Demo 运行方法和如何在更新模型/输入/输出处理下，保证图像分类 demo 仍可继续运行。
+# 图像分类 C++ API Demo 使用指南
+
+在 ARMLinux 上实现实时的图像分类功能，此 Demo 有很好的的易用性和开放性，如在 Demo 中跑自己训练好的模型等。
+本文主要介绍图像分类 Demo 运行方法和如何在更新模型/输入/输出处理下，保证图像分类 Demo 仍可继续运行。
 
 ## 如何运行图像分类 Demo
 
 ### 环境准备
 
-1. 在本地环境安装好 CMAKE 编译工具，并在 [Android NDK 官网](https://developer.android.google.cn/ndk/downloads)下载当前系统的某个版本的 NDK 软件包。例如，在 Mac 上开发，需要在 Android NDK 官网下载 Mac 平台的 NDK 软件包
+* 准备 ARMLiunx 开发版，用于 Demo 运行。
+* Paddle Lite 当前已验证 RK3399（[Ubuntu 18.04](http://www.t-firefly.com/doc/download/page/id/3.html)） 或 树莓派 3B（[Raspbian Buster with desktop](https://www.raspberrypi.org/downloads/raspbian/)），这两个软、硬件环境，其它平台用户可自行尝试；
+* 支持树莓派 3B 摄像头采集图像，具体参考[树莓派 3B 摄像头安装与测试](https://github.com/PaddlePaddle/Paddle-Lite-Demo/blob/master/PaddleLite-armlinux-demo/enable-camera-on-raspberry-pi.md)
+* gcc g++ opencv cmake 的安装（以下所有命令均在设备上操作）
 
-2. 准备一部 Android 手机，并开启 USB 调试模式。开启方法: `手机设置 -> 查找开发者选项 -> 打开开发者选项和 USB 调试模式`
-
-3. 电脑上安装 adb 工具，用于调试。 adb安装方式如下：
-
-    3.1. Mac 电脑安装 ADB:
-
-    ```shell
-     brew cask install android-platform-tools
-    ```
-
-    3.2. Linux 安装 ADB
-
-    ```shell
-     sudo apt update
-     sudo apt install -y wget adb
-    ```
-
-    3.3. Window 安装 ADB
-
-    win 上安装需要去谷歌的安卓平台下载 ADB 软件包进行安装：[链接](https://developer.android.com/studio)
-
-    打开终端，手机连接电脑，在终端中输入
-
-    ```shell
-     adb devices
-    ```
-
-    如果有 device 输出，则表示安装成功。
-
-    ```shell
-        List of devices attached
-        744be294    device
-    ```
+```bash
+$ sudo apt-get update
+$ sudo apt-get install gcc g++ make wget unzip libopencv-dev pkg-config
+$ wget https://www.cmake.org/files/v3.10/cmake-3.10.3.tar.gz
+$ tar -zxvf cmake-3.10.3.tar.gz
+$ cd cmake-3.10.3
+$ ./configure
+$ make
+$ sudo make install
+```
 
 ### 部署步骤
 
-1. 图像分类 Demo 位于 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification` 目录
-2. cd `Paddle-Lite-Demo/libs` 目录，运行 `download.sh` 脚本，下载所需要的 Paddle Lite 预测库
-3. cd `Paddle-Lite-Demo/image_classification/assets` 目录，运行 `download.sh` 脚本，下载OPT 优化后模型、测试图片和标签文件
-4. cd `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification` 目录，先在 `build.sh` 脚本中，完成 NDK_ROOT 路径设置；然后运行 `build.sh` 脚本，完成可执行文件的编译和运行。
-> **注意事项：**
->> - 如果是在 Linux 主机编译，请选择 Linux 版本的 NDK 进行设置
->> - 如果是在 Mac 主机编译，请选择 Mac 版本的 NDK 进行设置；另外，同步更新 `CMakeList.txt` 里的 `CMAKE_SYSTEM_NAME` 变量，更新为 `drawn`
-
-5. 运行结果如下所示：
+1. 图像分类 Demo 位于 `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification` 目录
+2. cd `Paddle-Lite-Demo/libs` 目录，终端中执行 `download.sh` 脚本自动下载 Paddle Lite 预测库
+下载完成后会出现提示： `Download successful!`
+3. cd `Paddle-Lite-Demo/image_classification/assets` 目录，终端中执行 `download.sh` 脚本自动下载图像分类模型和图片及标签文件
+4. cd `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification` 目录，终端中执行 `run.sh` 脚本完成和编译和运行推理(保证 ARMLinux 环境准备完成)
 
 ```shell
-======= benchmark summary =======
-input_shape(s) (NCHW): {1, 3, 224, 224}
-model_dir:./models/mobilenet_v1_for_cpu/model.nb
-warmup:10
-repeats:100
-power_mode:1
-thread_num:0
-*** time info(ms) ***
-1st_duration:33.87
-max_duration:30.657
-min_duration:28.5
-avg_duration:29.046
-
-====== output summary ======
-i: 0,  index: 285,  name: n02124075 Egyptian cat,  score: 0.482869
-i: 1,  index: 281,  name: n02123045 tabby, tabby cat,  score: 0.471595
-i: 2,  index: 282,  name: n02123159 tiger cat,  score: 0.039779
-``` 
-
-```shell
- cd Paddle-Lite-Demo/libs
- # 下载所需要的 Paddle Lite 预测库
- sh download.sh
- cd ../image_classification/assets
- # 下载OPT 优化后模型、测试图片、标签文件
- sh download.sh
- cd ../android/app/shell/cxx/image_classification
- # 更新 NDK_ROOT 路径，然后完成可执行文件的编译和运行
- sh build.sh
- # CMakeList.txt 里的 System 默认设置是linux；如果在Mac 运行，则需将 CMAKE_SYSTEM_NAME 变量设置为 drawn
+cd Paddle-Lite-Demo/libs          # 1. 终端中进入 Paddle-Lite-Demo\libs
+sh download.sh                    # 2. 执行脚本下载依赖项 （需要联网）
+cd ../image_classification/assets
+sh download.sh                    # 3. 下载图像分类模型和图片及标签文件
+cd ../linux/app/cxx/image_classification
+sh run.sh                         # 4. 执行脚本编译并执行图像分类 demo，输出预测数据和运行时间
 ```
 
-## 如何更新预测库
+Demo 运行结果如下:
+
+<p align="center">
+<img src="https://paddlelite-demo.bj.bcebos.com/demo/image_classification/docs_img/linux/armlinux_image_classification.jpg">
+</p>
+
+## 更新预测库
 
 * Paddle Lite 项目：https://github.com/PaddlePaddle/Paddle-Lite
-  * 参考 [Paddle Lite 源码编译文档](https://www.paddlepaddle.org.cn/lite/develop/source_compile/compile_env.html)，编译 Android 预测库
-  * 编译最终产物位于 `build.lite.xxx.xxx.xxx` 下的 `inference_lite_lib.xxx.xxx`
+ * 参考 [Paddle Lite 源码编译文档](https://www.paddlepaddle.org.cn/lite/develop/source_compile/compile_env.html)，编译 ARMLinux 预测库
+ * 编译最终产物位于 `build.lite.xxx.xxx.xxx` 下的 `inference_lite_lib.xxx.xxx`
     * 替换 c++ 库
         * 头文件
-          将生成的 `build.lite.android.xxx.gcc/inference_lite_lib.android.xxx/cxx/include` 文件夹替换 Demo 中的 `Paddle-Lite-Demo/libs/android/cxx/include`
-        * armeabi-v7a
-          将生成的 `build.lite.android.armv7.gcc/inference_lite_lib.android.armv7/cxx/libs/libpaddle_lite_api_shared.so` 库替换 Demo 中的 `Paddle-Lite-Demo/libs/android/cxx/libs/armeabi-v7a/libpaddle_lite_api_shared.so`
-        * arm64-v8a
-          将生成的 `build.lite.android.armv8.gcc/inference_lite_lib.android.armv8/cxx/libs/libpaddle_lite_api_shared.so` 库替换 Demo 中的 `Paddle-Lite-Demo/libs/android/cxx/libs/arm64-v8a/libpaddle_lite_api_shared.so`
+          将生成的 `build.lite.armLinux.xxx.gcc/inference_lite_lib.armLinux.xxx/cxx/include` 文件夹替换 Demo 中的 `Paddle-Lite-Demo/libs/linux/include`
+        * armv7hf
+          将生成的 `build.lite.armLinux.armv7hf.gcc/inference_lite_lib.armLinux.armv7hf/cxx/libs/libpaddle_lite_api_shared.so` 库替换 Demo 中的 `Paddle-Lite-Demo/libs/linux/libs/armv7hf/libpaddle_light_api_shared.so`
+        * armv8
+          将生成的 `build.lite.armLinux.armv8.gcc/inference_lite_lib.armLinux.armv8/cxx/libs/libpaddle_lite_api_shared.so` 库替换 Demo 中的 `Paddle-Lite-Demo/libs/linux/libs/armv8/libpaddle_light_api_shared.so`
 
-## Demo 代码介绍
+## Demo 内容介绍
 
 1. `Paddle-Lite-Demo/libs/` : 存放不同端的预测库和 OpenCV 库，如 Android、iOS 等
 
 **备注：**
-  如需更新预测库，例如更新 Android CXX v8 动态库 `so`，则将新的动态库 `so` 更新到 `Paddle-Lite-Demo/libs/android/cxx/libs/arm64-v8a` 目录
+  如需更新预测库，例如更新 linux CXX v8 动态库 `so`，则将新的动态库 `so` 更新到 `Paddle-Lite-Demo/libs/linux/libs/armv8` 目录
 
 2. `Paddle-Lite-Demo/image_classification/assets/` : 存放图像分类 demo 的模型、测试图片、标签文件
 
-3. `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/image_classification.cc` : 图像分类的预测代码
+3. `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/image_classification.cc` : 图像分类的预测代码
      - `pre_process(...)` : 完成图像分类的预处理功能
      - `post_process(...)` : 完成图像分类的后处理功能
-     - `run_model(...)` : 完成图像分类的预测全流程功能
+     - `process(...)` : 完成图像分类的预测全流程功能
+     - `run_model(...)` : 完成预测器初始化和输入数据源选取功能
      - `load_labels(...)` : 完成标签文件读取功能
      - `neon_mean_scale(...)` : 完成图像数据赋值给Tensor的加速处理功能
 
-4. `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/CMakeLists.txt` :  CMake 文件，约束可执行文件的编译方法
+4. `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/CMakeLists.txt` :  CMake 文件，约束可执行文件的编译方法
 
-5. `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/build.sh` : 用于可执行文件的编译和运行
+5. `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh` : 用于可执行文件的编译和运行
 
 ```shell
  # 位置
- Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/build.sh # 脚本默认编译 armv7 可执行文件
- # 如果要编译 armv8 可执行文件，可以将 build.sh 脚本中的 ARM_ABI 变量改为 arm64i-v8a 即可
- # build.sh 中包含了可执行文件的编译和运行功能，其中运行是调用run.sh 脚本进行完成
+ Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh # 脚本默认编译 armv8 可执行文件
+ # 如果要编译 armv7hf 可执行文件，可以将 build.sh 脚本中的 ARM_ABI 变量改为 armv7hf 即可
  # run.sh 脚本中可执行文件的参数含义：
- adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v1_for_cpu/model.nb \
-              ./images/tabby_cat.jpg \
-              ./labels/labels.txt \
-              3 224 224 \
-              0 1 100 10 0 \
-           "
+ ./image_classification ${MODELS_DIR}/mobilenet_v1_for_cpu/model.nb ${LABELS_DIR}/labels.txt 3 ${IMAGES_DIR}/tabby_cat.jpg ./result.jpg
 
  第一个参数：image_classification 可执行文件，属于必选项
- 第二个参数：./models/mobilenet_v1_for_cpu/model.nb 优化后的分类模型文件，属于必选项
- 第三个参数：./images/tabby_cat.jpg  测试图片，属于必选项
- 第四个参数：./labels/labels.txt  label 文件，属于必选项
- 第五个参数：3 top-k 大小，属于可选项，默认是 1
- 第六个参数：224 输入图片宽度，属于可选项，默认是 224
- 第七个参数：224 输入图片高度，属于可选项，默认是 224
- 第八个参数：0 是否绑核，0-绑定大核， 1-绑定小核，2-绑定所有核，3-不绑核，属于可选项，默认是 0
- 第九个参数：1 线程数，属于可选项，默认是 1
- 第十个参数：100 repeats 数目，属于可选项，默认是 1
- 第十一个参数：10 warmup 数目，属于可选项，默认是 0
- 第十二个参数：0 use_gpu 是否使用GPU， 属于可选项，默认是 0
+ 第二个参数：${MODELS_DIR}//models/mobilenet_v1_for_cpu/model.nb 优化后的分类模型文件，属于必选项
+ 第三个参数：${LABELS_DIR}/labels.txt  label 文件，属于必选项
+ 第四个参数：3 top-k 大小，属于可选项，默认是 1
+ 第五个参数：${IMAGES_DIR}/tabby_cat.jpg  测试图片，属于可选项。如果不提供输入图片，默认从摄像头获取输入数据
+ 第六个参数：./result.jpg 保存图片位置及名称，属于可选项，默认是空
 ```
 
 ## 代码讲解 （使用 Paddle Lite `C++ API` 执行预测）
 
-Android 示例基于 C++ API 开发，调用 Paddle Lite `C++s API` 包括以下五步。更详细的 `API` 描述参考：[Paddle Lite C++ API ](https://www.paddlepaddle.org.cn/lite/develop/api_reference/cxx_api_doc.html)。
+Linux 示例基于 C++ API 开发，调用 Paddle Lite `C++s API` 包括以下五步。更详细的 `API` 描述参考：[Paddle Lite C++ API ](https://www.paddlepaddle.org.cn/lite/develop/api_reference/cxx_api_doc.html)。
 
 ```c++
 #include <iostream>
@@ -223,119 +167,60 @@ for (int i = 0; i < outputSize; i += 6) {
 ### 更新模型
 
 1. 将优化后的模型存放到目录 `Paddle-Lite-Demo/image_classification/assets/models/` 下；
-2. 如果模型名字跟工程中模型名字一模一样，即均是使用 `mobilenet_v1_for_cpu/model.nb`，则代码不需更新；否则话，需要修改 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/run.sh` 脚本。
+2. 如果模型名字跟工程中模型名字一模一样，即均是使用 `mobilenet_v1_for_cpu/model.nb`，则代码不需更新；否则话，需要修改 `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh` 脚本。
 
-例子：假设更新 mobilenet_v2 模型为例，则先将优化后的模型存放到 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/run.sh` 下，然后更新脚本
+例子：假设更新 mobilenet_v2 模型为例，则先将优化后的模型存放到 `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh` 下，然后更新脚本
 
 ```shell
-# path: Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/run.sh
+# path: Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh
 # old
-adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v1_for_cpu/model.nb \
-              ./images/tabby_cat.jpg \
-              ./labels/labels.txt \
-              3 224 224 \
-              0 1 100 10 0 \
-          "
+./image_classification ${MODELS_DIR}/mobilenet_v1_for_cpu/model.nb ${LABELS_DIR}/labels.txt 3 ${IMAGES_DIR}/tabby_cat.jpg ./result.jpg
+
 # now
-adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v2_for_cpu/mv2.nb \
-              ./images/tabby_cat.jpg \
-              ./labels/labels.txt \
-              3 224 224 \
-              0 1 100 10 0 \
-          "
+./image_classification ${MODELS_DIR}/mobilenet_v2_for_cpu/mv2.nb ${LABELS_DIR}/labels.txt 3 ${IMAGES_DIR}/tabby_cat.jpg ./result.jpg
 ```
 
 **注意：**
--  如果更新模型的输入/输出 Tensor 个数、shape 和 Dtype 发生更新，需要更新文件 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/image_classification.cc` 的 `pre_process` 预处理和 `pre_process` 后处理代码即可。
+-  如果更新模型的输入/输出 Tensor 个数、shape 和 Dtype 发生更新，需要更新文件 `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/image_classification.cc` 的 `pre_process` 预处理和 `pre_process` 后处理代码即可。
 
-- 如果需要更新 `labels.txt` 标签文件，则需要将新的标签文件存放在目录 `Paddle-Lite-Demo/image_classification/assets/labels/` 下，并更新 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/run.sh` 脚本。
+- 如果需要更新 `labels.txt` 标签文件，则需要将新的标签文件存放在目录 `Paddle-Lite-Demo/image_classification/assets/labels/` 下，并更新 `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh` 脚本。
 
 ```shell
-# path: Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/run.sh
+# path: Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh
 # old
-adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v1_for_cpu/model.nb \
-              ./images/tabby_cat.jpg \
-              ./labels/labels.txt \
-              3 224 224 \
-              0 1 100 10 0 \
-          "
-# now
-adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v1_for_cpu/model.nb \
-              ./images/tabby_cat.jpg \
-              ./labels/labels_new.txt \
-              3 224 224 \
-              0 1 100 10 0 \
-          "
-- 如果想在 GPU 上推理，则将run.sh 中 use_gpu 设为True 即可：
+./image_classification ${MODELS_DIR}/mobilenet_v1_for_cpu/model.nb ${LABELS_DIR}/labels.txt 3 ${IMAGES_DIR}/tabby_cat.jpg ./result.jpg
 
-adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v1_for_cpu/model.nb \
-              ./images/tabby_cat.jpg \
-              ./labels/labels_new.txt \
-              3 224 224 \
-              0 1 100 10 1 \
-          "
+# now
+./image_classification ${MODELS_DIR}/mobilenet_v1_for_cpu/model.nb ${LABELS_DIR}/labels_new.txt 3 ${IMAGES_DIR}/tabby_cat.jpg ./result.jpg
+
 ```
 
 ### 更新输入/输出预处理
 1. 更新输入数据
 
 - 将更新的图片存放在 `Paddle-Lite-Demo/image_classification/assets/images/` 下；
-- 更新文件 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/run.sh` 脚本
+- 更新文件 `Paddle-Lite-Demo/image_classification/linux/app/image_classification/run.sh` 脚本
 
 以更新 `dog.jpg` 为例，则先将 `dog.jpg` 存放在 `Paddle-Lite-Demo/image_classification/assets/images/` 下，然后更新脚本
 
 ```shell
-# path: Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/run.sh
+# path: Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/run.sh
 # old
-adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v1_for_cpu/model.nb \
-              ./images/tabby_cat.jpg \
-              ./labels/labels.txt \
-              3 224 224 \
-              0 1 100 10 0 \
-          "
+./image_classification ${MODELS_DIR}/mobilenet_v1_for_cpu/model.nb ${LABELS_DIR}/labels.txt 3 ${IMAGES_DIR}/tabby_cat.jpg ./result.jpg
+
 # now
-adb shell "cd ${ADB_DIR} \
-           && chmod +x ./image_classification \
-           && export LD_LIBRARY_PATH=${ADB_DIR}:${LD_LIBRARY_PATH} \
-           && ./image_classification \
-              ./models/mobilenet_v1_for_cpu/model.nb \
-              ./images/dog.jpg \
-              ./labels/labels.txt \
-              3 224 224 \
-              0 1 100 10 0 \
-          "
+./image_classification ${MODELS_DIR}/mobilenet_v1_for_cpu/model.nb ${LABELS_DIR}/labels.txt 3 ${IMAGES_DIR}/dog.jpg ./result.jpg
+
 ```
+**注意：**
+  本 Demo 支持摄像头输入，如果想更新输入，可通过摄像头进行获取输入数据。
 
 
 2. 更新输入预处理
-此处需要更新 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/image_classification.cc` 的 `pre_process` 预处理实现就行。
+此处需要更新 `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/image_classification.cc` 的 `pre_process` 预处理实现就行。
 
 3. 更新输出预处理
-此处需要更新 `Paddle-Lite-Demo/image_classification/android/shell/cxx/image_classification/image_classification.cc` 的 `post_process` 后处理代码实现就行。
+此处需要更新 `Paddle-Lite-Demo/image_classification/linux/app/cxx/image_classification/image_classification.cc` 的 `post_process` 后处理代码实现就行。
 
 ## 性能优化方法
 如果你觉得当前性能不符合需求，想进一步提升模型性能，可参考[首页中性能优化文档](/README.md)完成性能优化。

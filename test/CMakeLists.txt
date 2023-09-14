@@ -31,7 +31,7 @@ add_executable(mask_detection mask_detection/mask_detection.cc)
 target_link_libraries(mask_detection ${LIBS})
 
 #object_detection picodet_detection
-add_executable(picodet_detection object_detection/picodet_detection/picodet_detection.cc)
+add_executable(picodet_detection object_detection/picodet_detection/object_detection_demo.cc)
 target_link_libraries(picodet_detection ${LIBS})
 
 #object_detection ssd_mobilenetv1_detection
